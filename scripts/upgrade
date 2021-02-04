@@ -35,6 +35,13 @@ if [ -z "$db_name" ]; then
 	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
 fi
 
+# Cleaning legacy permissions
+if ynh_legacy_permissions_exists; then
+	ynh_legacy_permissions_delete_all
+
+	ynh_app_setting_delete --app=$app --key=is_public
+fi
+
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
@@ -86,7 +93,7 @@ cp -a "$tmpdir/store" "${final_path}"
 cp -a "$tmpdir/.htconfig.php" "${final_path}"
 cp -a "$tmpdir/php.log" "${final_path}"
 ynh_secure_remove "$tmpdir"
-chmod -R 777 $final_path/store
+chmod -R 775 $final_path/store
 mkdir $final_path/addon
 ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
 
@@ -168,16 +175,9 @@ is_version_less_then_five=$(awk 'BEGIN{ print "'$version'"<"'5.0.0'" }')
 
 if [ "$is_version_less_then_five" -eq 1 ] && [ -f "$final_path/util/z6convert.php" ] ; then
 	pushd "$final_path"
-		php${YNH_PHP_VERSION} util/z6convert.php
+		php$phpversion util/z6convert.php
 	popd
 fi
-
-#=================================================
-# SETUP SSOWAT
-#=================================================
-# As Hubzilla is social network and have its own permission there is no need to keep Hubzilla behind SSO
-ynh_script_progression --message="Upgrading SSOwat configuration..."
-ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
 
 #=================================================
 # RELOAD NGINX

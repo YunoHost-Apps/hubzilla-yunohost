@@ -14,7 +14,7 @@
     },
     "services": [
         "nginx",
-        "php7.0-fpm",
+        "php7.3-fpm",
         "mysql",
         "postgresql"
     ],
@@ -40,9 +40,10 @@
                 "name": "admin",
                 "type": "user",
                 "ask": {
-                    "en": "Choose the Hubzilla administrator (must be an existing YunoHost user)",
-                    "fr": "Choisissez l'administrateur de Hubzilla (doit être un utilisateur YunoHost existant)"
-                }
+                    "en": "Choose the Hubzilla administrator",
+                    "fr": "Choisissez l'administrateur de Hubzilla"
+                },
+                "example": "johndoe"
             },
             {
                 "name": "database",
@@ -53,6 +54,7 @@
                 },
                 "choices": ["1", "2"],
                 "default": "1"
-            }       ]
+            }
+        ]
     }
 }

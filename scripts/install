@@ -27,7 +27,7 @@ ynh_abort_if_errors
 domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
 admin=$YNH_APP_ARG_ADMIN
-email=$(yunohost user info $admin | grep "mail:" | cut -d' ' -f2)
+email=$(ynh_user_get_info --username=$admin --key=mail)
 upload="256M"
 random_string="$(ynh_string_random)$(ynh_string_random)$(ynh_string_random)"
 database=`expr $YNH_APP_ARG_DATABASE`
@@ -93,7 +93,7 @@ ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
 ynh_script_progression --message="Creating smarty3 folder for personal data..."
 
 mkdir -p "${final_path}/store/[data]/smarty3"
-chmod -R 777 $final_path/store
+chmod -R 775 $final_path/store
 
 # Copy the template install/htconfig.sample.php to .htconfig.php
 ynh_script_progression --message="Moving .htconfig.php to root of Hubzilla ..."
@@ -209,14 +209,16 @@ ynh_use_logrotate "$final_path/php.log"
 # SETUP FAIL2BAN
 #=================================================
 ynh_script_progression --message="Add Fail2Ban..."
+
 ynh_add_fail2ban_config --logpath="$final_path/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
 
 #=================================================
 # SETUP SSOWAT
 #=================================================
 # As Hubzilla is social network and have its own permission there is no need to keep Hubzilla behind SSO
-ynh_script_progression --message="Configuring SSOwat..."
-ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
+ynh_script_progression --message="Configuring permissions..."
+
+ynh_permission_update --permission="main" --add="visitors"
 
 #=================================================
 # RELOAD NGINX

@@ -45,6 +45,7 @@ ynh_smart_mktemp () {
 
         echo "$(mktemp --directory --tmpdir="$tmpdir")"
 }
+
 #=================================================
 # FUTURE OFFICIAL HELPERS
 #=================================================
