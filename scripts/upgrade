@@ -155,6 +155,7 @@ cp -f ../conf/poller-cron /etc/cron.d/$app
 # UPGRADE DEPENDENCIES
 #=================================================
 ynh_script_progression --message="Upgrading dependencies..."
+
 if [  $database -eq 1 ]; then
 	#=================================================
 	# CHECK VERSION FOR SPECIFIC MYSQL UPDATE
