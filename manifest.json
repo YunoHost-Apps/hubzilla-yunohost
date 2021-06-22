@@ -6,20 +6,25 @@
         "en": "Decentralized publication platform and social network.",
         "fr": "Plateforme de publication décentralisée et un réseau social."
     },
-    "url": "https://zotlabs.org/page/hubzilla/hubzilla-project",
-    "license": "MIT",
     "version": "5.6~ynh1",
+    "url": "https://zotlabs.org/page/hubzilla/hubzilla-project",
+    "upstream": {
+        "license": "MIT",
+        "website": "https://zotlabs.org/page/hubzilla/hubzilla-project",
+        "code": "https://framagit.org/hubzilla/core"
+    },
+    "license": "MIT",
     "maintainer": {
         "name": "Anmol Sharma"
     },
     "services": [
         "nginx",
-        "php7.0-fpm",
+        "php7.3-fpm",
         "mysql",
         "postgresql"
     ],
     "requirements": {
-        "yunohost": ">= 4.0.0"
+        "yunohost": ">= 4.2.0"
     },
     "previous_maintainers": {
         "name": "Andrew Manning",
@@ -30,19 +35,11 @@
         "install" : [
             {
                 "name": "domain",
-                "type": "domain",
-                "ask": {
-                    "en": "Choose a domain for your Hubzilla. Hubzilla must run in the root of this domain. It means no other app can be accessed/run from this domain. We advise to use a dedicated subdomain such as hubzilla.domain.tld",
-                    "fr": "Indiquez un domain pour Hubzilla. Hubzilla doit être installé à la racine du domaine. Cela implique qu'aucune autre app ne pourra être installée ou accessible sur ce domain. Nous conseillons un sous-domaine dédié par exemple hubzilla.domain.tld."
-                }
+                "type": "domain"
             },
             {
                 "name": "admin",
-                "type": "user",
-                "ask": {
-                    "en": "Choose the Hubzilla administrator (must be an existing YunoHost user)",
-                    "fr": "Choisissez l'administrateur de Hubzilla (doit être un utilisateur YunoHost existant)"
-                }
+                "type": "user"
             },
             {
                 "name": "database",
@@ -53,6 +50,7 @@
                 },
                 "choices": ["1", "2"],
                 "default": "1"
-            }       ]
+            }
+        ]
     }
 }

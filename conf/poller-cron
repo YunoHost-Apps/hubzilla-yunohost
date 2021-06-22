@@ -1,2 +1,2 @@
 # Run poller periodically to update Hubzilla
-*/10 * * * * __USER__ cd YNH_WWW_PATH; /usr/bin/php__PHP_VERSION__ Zotlabs/Daemon/Master.php Cron > /dev/null 2>&1
+*/10 * * * * __USER__ cd __FINALPATH__; /usr/bin/php__PHPVERSION__ Zotlabs/Daemon/Master.php Cron > /dev/null 2>&1

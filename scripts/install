@@ -59,6 +59,14 @@ ynh_app_setting_set --app=$app --key=database --value=$database
 ynh_app_setting_set --app=$app --key=random_string --value=$random_string
 
 #=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Configuring system user..."
+
+# Create a system user
+ynh_system_user_create --username=$app --home_dir="$final_path"
+
+#=================================================
 # STANDARD MODIFICATIONS
 #=================================================
 # INSTALL DEPENDENCIES
@@ -123,7 +131,7 @@ popd
 ynh_script_progression --message="Creating smarty3 folder for personal data..."
 
 mkdir -p "${final_path}/store/[data]/smarty3"
-chmod -R 777 $final_path/store
+chmod -R 775 $final_path/store
 
 # Copy the template install/htconfig.sample.php to .htconfig.php
 ynh_script_progression --message="Moving .htconfig.php to root of Hubzilla ..."
@@ -133,6 +141,10 @@ cp $final_path/install/htconfig.sample.php $config
 # Create php.log inside Hubzilla for logs
 ynh_script_progression --message="Create php.log for the Hubzilla debuging..."
 touch "$final_path/php.log"
+
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app:www-data "$final_path"
 
 #=================================================
 # CREATE A  DATABASE
@@ -188,18 +200,9 @@ cat ../conf/ldap_conf.php >> $final_path/.htconfig.php
 # NGINX CONFIGURATION
 #=================================================
 ynh_script_progression --message="Configuring NGINX web server..."
-### `ynh_add_nginx_config` will use the file conf/nginx.conf
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config
-
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-ynh_script_progression --message="Configuring system user..."
-
-# Create a system user
-ynh_system_user_create --username=$app
 
 #=================================================
 # PHP-FPM CONFIGURATION
@@ -209,23 +212,8 @@ ynh_script_progression --message="Configuring PHP-FPM..."
 # Create a dedicated PHP-FPM config
 ynh_add_fpm_config --package="$extra_php_dependencies"
 
-# Set right permissions for Hubzilla
-ynh_script_progression --message="Set right for Hubzilla..."
-chown -R $app: $final_path
-
 # Set up cron job
-ynh_script_progression --message="Setting up cron job..."
-ynh_replace_string --match_string="YNH_WWW_PATH" --replace_string="$final_path"  --target_file="../conf/poller-cron"
-ynh_replace_string --match_string="__USER__" --replace_string="$app"  --target_file="../conf/poller-cron"
-ynh_replace_string --match_string="__PHP_VERSION__" --replace_string="$phpversion"  --target_file="../conf/poller-cron"
-cp ../conf/poller-cron /etc/cron.d/$app
-
-#=================================================
-# STORE THE CONFIG FILE CHECKSUM
-#=================================================
-
-# Calculate and store the config file checksum into the app settings
-ynh_store_file_checksum --file="$config"
+ynh_add_config --template="../conf/poller-cron" --destination="/etc/cron.d/$app"
 
 #=================================================
 # SETUP LOGROTATE
@@ -239,6 +227,7 @@ ynh_use_logrotate "$final_path/php.log"
 # SETUP FAIL2BAN
 #=================================================
 ynh_script_progression --message="Add Fail2Ban..."
+
 ynh_add_fail2ban_config --logpath="$final_path/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
 
 #=================================================
@@ -246,8 +235,8 @@ ynh_add_fail2ban_config --logpath="$final_path/php.log" --failregex="^.*auth\.ph
 #=================================================
 # As Hubzilla is social network and have its own permission there is no need to keep Hubzilla behind SSO
 ynh_script_progression --message="Configuring SSOwat..."
-ynh_permission_update --permission="main" --add="visitors"
 
+ynh_permission_update --permission="main" --add="visitors"
 
 #=================================================
 # RELOAD NGINX
